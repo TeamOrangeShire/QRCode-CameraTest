@@ -3,53 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Code Scanner with QuaggaJS</title>
-  <!-- Include QuaggaJS library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+  <title>QR Code Scanner</title>
+  <!-- Include html5-qrcode library -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 </head>
 <body>
 
-<!-- Button to start scanning -->
-<button id="startButton">Start Scanning</button>
+<!-- Button to trigger QR code scanning -->
+<button id="scanButton">Scan QR Code</button>
 
-<!-- Video element to display camera feed -->
-<video id="camera-preview" ></video>
+<!-- Container to display QR code scanner -->
+<div id="qrScanner" style="display: none;"></div>
 
 <!-- Container to display decoded QR code result -->
 <div id="result"></div>
 
 <script>
   // Function to start QR code scanning
-  function startScanning() {
-    // Initialize QuaggaJS
-    Quagga.init({
-      inputStream: {
-        name: "Live",
-        type: "LiveStream",
-        target: document.querySelector('#camera-preview')
+  function startScan() {
+    // Show QR code scanner container
+    document.getElementById('qrScanner').style.display = 'block';
+    
+    // Initialize HTML5 QR code scanner
+    const html5QrCode = new Html5Qrcode('qrScanner');
+    
+    // Start QR code scanning
+    html5QrCode.start(
+      { facingMode: "environment" }, // Use rear camera if available
+      {
+        fps: 10, // Set frames per second (optional)
+        qrbox: 250 // Set size of QR code scanning box (optional)
       },
-      decoder: {
-        readers: ["qrcode"]
+      qrCodeMessage => {
+        console.log('Decoded QR code:', qrCodeMessage);
+        document.getElementById('result').textContent = 'Decoded QR code: ' + qrCodeMessage;
+        // Stop QR code scanning after successful decode (optional)
+        html5QrCode.stop().then(ignore => {
+          console.log('QR code scanning stopped');
+          document.getElementById('qrScanner').style.display = 'none'; // Hide scanner container
+        }).catch(err => console.error(err));
+      },
+      errorMessage => {
+        console.error('Error scanning QR code:', errorMessage);
+        alert('Error scanning QR code: ' + errorMessage);
+        // Stop QR code scanning on error (optional)
+        html5QrCode.stop().then(ignore => {
+          console.log('QR code scanning stopped');
+          document.getElementById('qrScanner').style.display = 'none'; // Hide scanner container
+        }).catch(err => console.error(err));
       }
-    }, function(err) {
-      if (err) {
-        console.error(err);
-        return;
-      }
-      console.log("Initialization finished. Ready to start");
-      Quagga.start();
-    });
-
-    // Handle decoded QR code results
-    Quagga.onDetected(function(result) {
-      var code = result.codeResult.code;
-      console.log("Decoded QR code:", code);
-      document.getElementById('result').textContent = "Decoded QR code: " + code;
-    });
+    );
   }
 
-  // Event listener for start button click
-  document.getElementById('startButton').addEventListener('click', startScanning);
+  // Event listener for scan button click
+  document.getElementById('scanButton').addEventListener('click', startScan);
 </script>
 
 </body>
