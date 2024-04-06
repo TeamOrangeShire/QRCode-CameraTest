@@ -45,12 +45,7 @@
       },
       errorMessage => {
         console.error('Error scanning QR code:', errorMessage);
-        alert('Error scanning QR code: ' + errorMessage);
-        // Stop QR code scanning on error (optional)
-        html5QrCode.stop().then(ignore => {
-          console.log('QR code scanning stopped');
-          document.getElementById('qrScanner').style.display = 'none'; // Hide scanner container
-        }).catch(err => console.error(err));
+        
       }
     );
   }
