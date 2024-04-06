@@ -3,47 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Code Scanner</title>
-  <!-- Include ZXing library -->
-  <script src="https://unpkg.com/@zxing/library@latest"></script>
+  <title>QR Code Scanner with QuaggaJS</title>
+  <!-- Include QuaggaJS library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
 </head>
 <body>
 
-<!-- Button to trigger QR code scanning -->
-<button id="scanButton">Scan QR Code</button>
+<!-- Button to start scanning -->
+<button id="startButton">Start Scanning</button>
 
 <!-- Video element to display camera feed -->
-<video id="video" ></video>
+<video id="camera-preview" ></video>
+
+<!-- Container to display decoded QR code result -->
+<div id="result"></div>
 
 <script>
   // Function to start QR code scanning
-  function startScan() {
-    const codeReader = new ZXing.BrowserQRCodeReader();
-
-    // Get video stream from user's camera
-   // Get video stream from the rear camera
-navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-  .then(stream => {
-    // Display camera feed in video element
-    const videoElement = document.getElementById('video');
-    videoElement.srcObject = stream;
-    videoElement.play();
-
-    // Start scanning QR codes
-    codeReader.decodeFromVideoElement(videoElement, result => {
-      console.log(result.text); // Output scanned QR code to console
-      alert('Scanned QR code: ' + result.text); // Show scanned QR code in alert
+  function startScanning() {
+    // Initialize QuaggaJS
+    Quagga.init({
+      inputStream: {
+        name: "Live",
+        type: "LiveStream",
+        target: document.querySelector('#camera-preview')
+      },
+      decoder: {
+        readers: ["qrcode"]
+      }
+    }, function(err) {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      console.log("Initialization finished. Ready to start");
+      Quagga.start();
     });
-  })
-  .catch(err => {
-    console.error('Error accessing camera:', err);
-    alert('Error accessing camera: ' + err.message);
-  });
 
+    // Handle decoded QR code results
+    Quagga.onDetected(function(result) {
+      var code = result.codeResult.code;
+      console.log("Decoded QR code:", code);
+      document.getElementById('result').textContent = "Decoded QR code: " + code;
+    });
   }
 
-  // Event listener for scan button click
-  document.getElementById('scanButton').addEventListener('click', startScan);
+  // Event listener for start button click
+  document.getElementById('startButton').addEventListener('click', startScanning);
 </script>
 
 </body>
