@@ -21,23 +21,25 @@
     const codeReader = new ZXing.BrowserQRCodeReader();
 
     // Get video stream from user's camera
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
-        // Display camera feed in video element
-        const videoElement = document.getElementById('video');
-        videoElement.srcObject = stream;
-        videoElement.play();
+   // Get video stream from the rear camera
+navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+  .then(stream => {
+    // Display camera feed in video element
+    const videoElement = document.getElementById('video');
+    videoElement.srcObject = stream;
+    videoElement.play();
 
-        // Start scanning QR codes
-        codeReader.decodeFromVideoElement(videoElement, result => {
-          console.log(result.text); // Output scanned QR code to console
-          alert('Scanned QR code: ' + result.text); // Show scanned QR code in alert
-        });
-      })
-      .catch(err => {
-        console.error('Error accessing camera:', err);
-        alert('Error accessing camera: ' + err.message);
-      });
+    // Start scanning QR codes
+    codeReader.decodeFromVideoElement(videoElement, result => {
+      console.log(result.text); // Output scanned QR code to console
+      alert('Scanned QR code: ' + result.text); // Show scanned QR code in alert
+    });
+  })
+  .catch(err => {
+    console.error('Error accessing camera:', err);
+    alert('Error accessing camera: ' + err.message);
+  });
+
   }
 
   // Event listener for scan button click
