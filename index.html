@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Scanner</title>
+  <!-- Include ZXing library -->
+  <script src="https://unpkg.com/@zxing/library@latest"></script>
+</head>
+<body>
+
+<!-- Button to trigger QR code scanning -->
+<button id="scanButton">Scan QR Code</button>
+
+<!-- Video element to display camera feed -->
+<video id="video" style="display: none;"></video>
+
+<script>
+  // Function to start QR code scanning
+  function startScan() {
+    const codeReader = new ZXing.BrowserQRCodeReader();
+
+    // Get video stream from user's camera
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        // Display camera feed in video element
+        const videoElement = document.getElementById('video');
+        videoElement.srcObject = stream;
+        videoElement.play();
+
+        // Start scanning QR codes
+        codeReader.decodeFromVideoElement(videoElement, result => {
+          console.log(result.text); // Output scanned QR code to console
+          alert('Scanned QR code: ' + result.text); // Show scanned QR code in alert
+        });
+      })
+      .catch(err => {
+        console.error('Error accessing camera:', err);
+        alert('Error accessing camera: ' + err.message);
+      });
+  }
+
+  // Event listener for scan button click
+  document.getElementById('scanButton').addEventListener('click', startScan);
+</script>
+
+</body>
+</html>
